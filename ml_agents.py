@@ -275,4 +275,135 @@ class ModelingAgent:
     return model, evaluation_result,training_history
 
 
-  
+  ## Build an evaluation agent
+
+
+class EvaluationAgent:
+
+  def __init__(self, model = 'gpt-4o',user_instructions = '', user_defined_target = ''):
+    self.model = model
+    self.name = 'Evaluation Agent'
+    self.user_defined_target = user_defined_target
+    self.user_instructions = 'You are a data scientist specialized in evaluating machine learning model.\
+    You take in modeling proposal, training result, and training history.\
+    Based on these information, you make suggestions on how to improve the model\
+      '+user_instructions
+
+    if self.user_defined_target:
+      self.user_instructions += f'The target variable is {self.user_defined_target}'
+
+    self.agent = Agent(
+        name = self.name,
+        model = self.model,
+        instructions = self.user_instructions,
+        model_settings = ModelSettings(temperature = 0)
+        )
+
+
+  async def analyze_model(self, modeling_proposal:str, training_result:str,training_history:str):
+
+
+    schema = {
+        'modeling_proposal':modeling_proposal,
+        'training_result':training_result,
+        'training_history':training_history,
+        'target_variable':self.user_defined_target
+    }
+
+    prompt = f"""
+    You are given:
+    * Modeling Proposal: {schema.get('modeling_proposal')}
+    * Training Result: {schema.get('training_result')}
+    * Training History: {schema.get('training_history')}
+    * Target Variable: {schema.get('target_variable')}
+
+    Tasks:
+    1. Read Modeling Proposal
+    2. Examinate the training history and training result
+    3. Suggest method to improve the model
+    4. Explain reasoning of the above decisions
+    5. Return JSON strictly:
+
+    {{
+      'target_variable':'{self.user_defined_target }',
+      'modeling_proposal':{modeling_proposal}.
+      'training_result':{training_result},
+      'reasoning':'reasoning'
+
+
+    }}
+
+    """
+
+    result = await Runner.run(self.agent, prompt)
+    print(result.final_output)
+    return result.final_output
+
+## Report agent
+
+class ReportAgent:
+
+  def __init__(self, model = 'gpt-4o',user_instructions = '', user_defined_target = ''):
+    self.model = model
+    self.name = 'Report Agent'
+    self.user_defined_target = user_defined_target
+    self.user_instructions = 'You are a data scientist specialized in summarizing the given information and generate a report.\
+    You take in promblem statement, modeling proposal, training result, and model optimization suggestions.\
+    Based on these information, you summarize the information and generate a report\
+      '+user_instructions
+
+    if self.user_defined_target:
+      self.user_instructions += f'The target variable is {self.user_defined_target}'
+
+    self.agent = Agent(
+        name = self.name,
+        model = self.model,
+        instructions = self.user_instructions,
+        model_settings = ModelSettings(temperature = 0)
+        )
+
+  async def generate_report(
+        self,
+        problem_statement: str,
+        fea_eng_result: str,
+        model_proposal: str,
+        training_result: str,
+        optimization_suggestion: str = ""
+    ) -> str:
+        """
+        Generate a final full analysis report.
+        """
+        prompt = f"""
+        Generate a detailed professional analytical report based on the following inputs.
+
+        ### **Problem Statement**
+        {problem_statement}
+
+        ### **Variable Selection & Feature Engineering and rationale**
+        {fea_eng_result}
+
+        ### **Modeling Summary**
+        {model_proposal}
+
+        ### **Model Training Result**
+        {training_result}
+
+        ### **Model Optimization Suggestions**
+        {optimization_suggestion}
+
+        Format the report in structured markdown with:
+        - Executive summary
+        - Problem statement
+        - Variable selection and feature engineering and rationale
+        - Model selection and training methodology
+        - Model training and evaluation results
+        - Model Optimization Sggestions
+        """
+
+        result = await Runner.run(self.agent, prompt)
+        print(result.final_output)
+        return result.final_output
+
+
+
+

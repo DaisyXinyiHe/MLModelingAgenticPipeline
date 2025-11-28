@@ -1,5 +1,5 @@
 import os
-from ml_agents import feature_analysis_Agent,ModelingAgent
+from ml_agents import feature_analysis_Agent,ModelingAgent,EvaluationAgent,ReportAgent
 import asyncio
 
 
@@ -38,12 +38,18 @@ async def main() -> None:
 
     fea_eng_suggestions = fea_eng_result['Feature_analysis_suggestions']
     model_proposal = await modeling_agent.proposed_model(user_instructions, varb_info_path,fea_eng_suggestions, df_transformed, user_defined_target)
-    
+    modeling_code = await modeling_agent.generate_modeling_code(model_proposal)
+    Model, evaluation_result,training_history = await modeling_agent.execute_code(df_transformed,  modeling_code)
+
+    ## Evaluation agent
+    evaluation_agent = EvaluationAgent(user_instructions = user_instructions,user_defined_target =user_defined_target)
+    evaluator_suggestion = await evaluation_agent.analyze_model(model_proposal, evaluation_result,training_history)
 
 
-
-
-
+    ## Report agent
+    report_agent = ReportAgent(user_instructions = user_instructions,user_defined_target =user_defined_target)
+    optimization_suggestion = eval(evaluator_suggestion.replace("```", "").removeprefix("json"))['reasoning']
+    report = await report_agent.generate_report(user_instructions, fea_eng_result, model_proposal, evaluation_result, optimization_suggestion)
 
 
 
