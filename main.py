@@ -2,20 +2,8 @@ import os
 from ml_agents import feature_analysis_Agent,ModelingAgent,EvaluationAgent,ReportAgent
 import asyncio
 
-
-
-
-
-
-
-# Entrypoint for the financial bot example.
-# Run this as `python -m examples.financial_research_agent.main` and enter a
-# financial research query, for example:
-# "Write up an analysis of Apple Inc.'s most recent quarter."
 async def main() -> None:
-    # query = input("Enter a financial research query: ")
-    # mgr = FinancialResearchManager()
-    # await mgr.run(query)
+ 
 
     ## target provided
     csv_path  = input("Enter train data path: ")
