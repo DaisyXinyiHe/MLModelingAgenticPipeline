@@ -2,6 +2,7 @@ from ml_agents import feature_analysis_Agent,ModelingAgent,EvaluationAgent,Repor
 import asyncio
 from openai import OpenAI
 from agents import Agent, Runner, ModelSettings
+import time
 
 import json
 import traceback
@@ -68,7 +69,15 @@ class ManagerAgent():
         self.report_agent.user_instructions = user_instructions
         self.report_agent.user_defined_target =user_defined_target
         optimization_suggestion = eval(evaluator_suggestion.replace("```", "").removeprefix("json"))['reasoning']
-        report = await self.report_agent.generate_report(user_instructions, fea_eng_result, model_proposal, evaluation_result, optimization_suggestion)
+        try:
+            report = await self.report_agent.generate_report(user_instructions, fea_eng_result, model_proposal, evaluation_result, optimization_suggestion)
+        except Exception as e:
+            wait = min(2 ** 1, 30)  # exponential backoff
+            print(f"Rate limit hit. Waiting {wait}s...")
+            time.sleep(wait)
+            report = await self.report_agent.generate_report(user_instructions, fea_eng_result, model_proposal, evaluation_result, optimization_suggestion)
+
+
 
         return report
 
