@@ -98,19 +98,11 @@ async def run_pipeline():
             f.write(result)
             # json.dump(result, f, indent=2, default=str)
 
-
+        print(result)
 
         # provide a simple response
         return result
-        # return jsonify({
-        #     "status": "success",
-        #     "artifacts_dir": out_dir,
-        #     "result_preview": {
-        #         "eda": result.get("eda"),
-        #         "model_summary": result.get("model_summary"),
-        #         "evaluation": result.get("evaluation")
-        #     }
-        # })
+ 
 
     except Exception as e:
         tb = traceback.format_exc()
