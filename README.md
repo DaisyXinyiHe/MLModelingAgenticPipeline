@@ -16,3 +16,14 @@ Machine Learning Modeling Agentic AI Pipeline
   * Suggest modeling optimization based on training results
 * Report Agent
   * Summarize the above and generate a report
+
+## Scripts
+* Agentic_AI.ipynb: Google Colab notebook. Demo for pipeline workflow
+* ml_agents.py: All available agents
+* main.py: Main run script
+
+## Note
+* Temperature = 0 doesn't always lead to the same output.
+* Sometimes the workflow fail because Agent is suggesting a module that is not avaiable in current environment.
+  * Solution: Download the module or give Agent the permission to do that for you.
+* If using XGBoost with Python 3.14, might need additional packages in the environment. 
