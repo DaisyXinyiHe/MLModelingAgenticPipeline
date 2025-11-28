@@ -8,15 +8,12 @@ import json
 import numpy as np
 
 class ManagerAgent:
-    def __init__(self,user_instructions,user_defined_target,csv_path,varb_info_path):
+    def __init__(self):
         self.name = 'Manager_Agent'
-        self.user_instructions= user_instructions
-        self.user_defined_target = user_defined_target
-        self.csv_path = csv_path
-        self.varb_info_path = varb_info_path
 
-    def run_pipeline(self):
-        df = pd.read_csv(self.csv_path)
+    def run_pipeline(self,user_instructions,user_defined_target,csv_path,varb_info_path):
+
+        df = pd.read_csv(csv_path)
         # quick EDA
         eda = {
             "n_rows": len(df),
@@ -25,13 +22,13 @@ class ManagerAgent:
         }
 
         ## Check if target is continous or categorical to determine regression or classification model
-        if df[self.user_defined_target].nunique() > 10:
+        if df[user_defined_target].nunique() > 10:
             model_type = "regression"
         else:
             model_type = "classificaiotn"
 
         # simple transform: drop rows with missing target, fill others with median/mode
-        df = df.dropna(subset=[self.user_defined_target])
+        df = df.dropna(subset=[user_defined_target])
         for col in df.columns:
             if df[col].dtype.kind in "biufc":  # numeric-like
                 df[col] = df[col].fillna(df[col].median())
@@ -39,12 +36,12 @@ class ManagerAgent:
                 df[col] = df[col].fillna(np.nan)
 
         # simple train/test split
-        X = df.drop(columns=[self.user_defined_target])
+        X = df.drop(columns=[user_defined_target])
         # keep only numeric columns for the toy example
         X_num = X.select_dtypes(include=["number"])
         if X_num.shape[1] == 0:
             raise RuntimeError("Toy pipeline needs at least one numeric predictor column.")
-        y = df[self.user_defined_target]
+        y = df[user_defined_target]
         X_train, X_test, y_train, y_test = train_test_split(X_num, y, test_size=0.2, random_state=42)
 
         metrics = {}
