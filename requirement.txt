@@ -6,5 +6,5 @@ openai-agents
 scikit-learn
 pytorch
 xgboost
-flask
+"Flask[async]"
 werkzeug
