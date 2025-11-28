@@ -19,79 +19,13 @@ app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024  # 200 MB
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Try to import ManagerAgent from your codebase. If not available, fallback to a toy pipeline.
+# Try to import ManagerAgent from your codebase. If not available, fallback to a fallback manager pipeline.
 try:
     from manager import ManagerAgent  # expected to provide ManagerAgent(...) interface
     HAS_MANAGER = True
 except Exception:
     HAS_MANAGER = False
-
-    # Toy fallback manager that runs a minimal pipeline (EDA -> simple model -> eval -> report)
-    import pandas as pd
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score
-
-    class ManagerAgent:
-        def __init__(self):
-            pass
-
-        def run_pipeline(self, csv_path, problem_statement, target_variable, variable_info_text=None):
-            # Basic synchronous toy pipeline
-            df = pd.read_csv(csv_path)
-            # quick EDA
-            eda = {
-                "n_rows": len(df),
-                "n_cols": len(df.columns),
-                "missing": df.isna().sum().to_dict()
-            }
-
-            # simple transform: drop rows with missing target, fill others with median/mode
-            df = df.dropna(subset=[target_variable])
-            for col in df.columns:
-                if df[col].dtype.kind in "biufc":  # numeric-like
-                    df[col] = df[col].fillna(df[col].median())
-                else:
-                    df[col] = df[col].fillna("missing")
-
-            # simple train/test split
-            X = df.drop(columns=[target_variable])
-            # keep only numeric columns for the toy example
-            X_num = X.select_dtypes(include=["number"])
-            if X_num.shape[1] == 0:
-                raise RuntimeError("Toy pipeline needs at least one numeric predictor column.")
-            y = df[target_variable]
-            X_train, X_test, y_train, y_test = train_test_split(X_num, y, test_size=0.2, random_state=42, stratify=(y if y.nunique()>1 else None))
-
-            model = RandomForestClassifier(n_estimators=200, random_state=42)
-            model.fit(X_train, y_train)
-
-            y_proba = model.predict_proba(X_test)[:, 1] if hasattr(model, "predict_proba") and y.nunique() > 1 else model.predict(X_test)
-            metrics = {}
-            # attempt classification metrics if y is binary or categorical
-            try:
-                metrics["roc_auc"] = float(roc_auc_score(y_test, y_proba))
-            except Exception:
-                metrics["roc_auc"] = None
-            try:
-                y_pred = model.predict(X_test)
-                metrics["accuracy"] = float(accuracy_score(y_test, y_pred))
-                metrics["precision"] = float(precision_score(y_test, y_pred, zero_division=0))
-                metrics["recall"] = float(recall_score(y_test, y_pred, zero_division=0))
-            except Exception:
-                # regression fallback not implemented in toy
-                pass
-
-            # produce simple report
-            report = f"Toy pipeline report\nRows: {eda['n_rows']}\nCols: {eda['n_cols']}\nMetrics: {json.dumps(metrics)}\n"
-
-
-            return {
-                "eda": eda,
-                "model_summary": {"type": "RandomForest", "details": "Toy model"},
-                "evaluation": metrics,
-                "report_markdown": report
-            }
+    from fallback_manager import ManagerAgent
 
 # instantiate manager
 manager = ManagerAgent()
