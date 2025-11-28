@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ML Pipeline — Manager UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" rel="stylesheet" />
+  <style>
+    .container { margin-top: 30px; }
+    pre { background:#f5f5f5; padding:10px; overflow:auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">ML Pipeline Manager</h1>
+
+    <form id="pipelineForm" enctype="multipart/form-data">
+      <div class="field">
+        <label class="label">Training CSV</label>
+        <div class="control">
+          <input class="input" type="file" id="csv_file" name="csv_file" accept=".csv" required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Variable Info (optional)</label>
+        <div class="control">
+          <textarea class="textarea" name="variable_info_text" id="variable_info_text" placeholder="Paste variable information here..."></textarea>
+        </div>
+        <p class="help">Or upload a .txt file describing variables</p>
+        <div class="control">
+          <input type="file" id="variable_info_file" name="variable_info_file" accept=".txt" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Target Variable</label>
+        <div class="control">
+          <input class="input" type="text" name="target_variable" id="target_variable" placeholder="e.g., churn_flag" required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Problem Statement (optional)</label>
+        <div class="control">
+          <input class="input" type="text" name="problem_statement" id="problem_statement" placeholder="e.g., Predict customer churn within 90 days" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <button class="button is-primary" type="submit">Run Pipeline</button>
+        </div>
+      </div>
+    </form>
+
+    <div id="resultArea" style="display:none; margin-top: 20px;">
+      <h2 class="subtitle">Pipeline Result</h2>
+      <div id="resultContent"></div>
+      <div id="errorContent" style="color:darkred;"></div>
+    </div>
+  </div>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>

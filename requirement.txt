@@ -6,3 +6,5 @@ openai-agents
 scikit-learn
 pytorch
 xgboost
+flask
+werkzeug
