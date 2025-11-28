@@ -21,7 +21,7 @@ def allowed_file(filename):
 
 # Try to import ManagerAgent from your codebase. If not available, fallback to a toy pipeline.
 try:
-    from manager_agent import ManagerAgent  # expected to provide ManagerAgent(...) interface
+    from manager import ManagerAgent  # expected to provide ManagerAgent(...) interface
     HAS_MANAGER = True
 except Exception:
     HAS_MANAGER = False
@@ -85,16 +85,12 @@ except Exception:
             # produce simple report
             report = f"Toy pipeline report\nRows: {eda['n_rows']}\nCols: {eda['n_cols']}\nMetrics: {json.dumps(metrics)}\n"
 
-            deck = [
-                {"slide_number": 1, "title": "Executive Summary", "bullets": [f"Dataset rows: {eda['n_rows']}", f"Columns: {eda['n_cols']}"], "speaker_notes": "Toy pipeline summary", "graphics_suggestion": "None"}
-            ]
 
             return {
                 "eda": eda,
                 "model_summary": {"type": "RandomForest", "details": "Toy model"},
                 "evaluation": metrics,
-                "report_markdown": report,
-                "deck_outline": deck
+                "report_markdown": report
             }
 
 # instantiate manager
