@@ -13,8 +13,8 @@ async def main() -> None:
     user_defined_target = input ("Enter prediction target: ")
 
     ## Manager agent
-    manager_agent = ManagerAgent(user_instructions,user_defined_target,csv_path,varb_info_path)
-    await manager_agent.run_pipeline()
+    manager_agent = ManagerAgent()
+    result = await manager_agent.run_pipeline(user_instructions,user_defined_target,csv_path,varb_info_path)
 
 
 #     ## Feature analysis agent

@@ -75,28 +75,32 @@ def run_pipeline():
         problem_statement = request.form.get("problem_statement", "")
         # Run pipeline synchronously (blocking)
         result = manager.run_pipeline(csv_path=csv_path,
-                                      problem_statement=problem_statement,
-                                      target_variable=target_variable,
-                                      variable_info_text=variable_info_text)
+                                      user_instructions=problem_statement,
+                                      user_defined_target=target_variable,
+                                      varb_info_path=variable_info_text)
 
         # Save output artifacts
         out_id = f"run_{len(os.listdir(ARTIFACTS_FOLDER))+1}"
         out_dir = os.path.join(ARTIFACTS_FOLDER, out_id)
         os.makedirs(out_dir, exist_ok=True)
         # save raw result
-        with open(os.path.join(out_dir, "result.json"), "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=2, default=str)
+        with open(os.path.join(out_dir, "result.txt"), "w", encoding="utf-8") as f:
+            f.write(result)
+            # json.dump(result, f, indent=2, default=str)
+
+
 
         # provide a simple response
-        return jsonify({
-            "status": "success",
-            "artifacts_dir": out_dir,
-            "result_preview": {
-                "eda": result.get("eda"),
-                "model_summary": result.get("model_summary"),
-                "evaluation": result.get("evaluation")
-            }
-        })
+        return result
+        # return jsonify({
+        #     "status": "success",
+        #     "artifacts_dir": out_dir,
+        #     "result_preview": {
+        #         "eda": result.get("eda"),
+        #         "model_summary": result.get("model_summary"),
+        #         "evaluation": result.get("evaluation")
+        #     }
+        # })
 
     except Exception as e:
         tb = traceback.format_exc()

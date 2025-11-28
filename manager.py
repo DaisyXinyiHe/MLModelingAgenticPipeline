@@ -44,17 +44,17 @@ class ManagerAgent():
         ## Feature analysis agent
         self.fea_agent.user_instructions = user_instructions
         self.fea_agent.user_defined_target=user_defined_target
-        fea_eng_result = await self.fea_agent.run(csv_path = self.csv_path, varb_info_path=self.varb_info_path)
+        fea_eng_result = await self.fea_agent.run(csv_path = csv_path, varb_info_path=varb_info_path)
 
         code = await self.fea_agent.generate_transformation_code(
             fea_eng_result['raw_profile'],
             fea_eng_result['Feature_analysis_suggestions']
         )
-        df_transformed = self.fea_agent.execute_code(csv_path = self.csv_path, code = code)
+        df_transformed = self.fea_agent.execute_code(csv_path = csv_path, code = code)
 
         ## Modeling Agent
         fea_eng_suggestions = fea_eng_result['Feature_analysis_suggestions']
-        model_proposal = await self.modeling_agent.proposed_model(self.user_instructions, self.varb_info_path,fea_eng_suggestions, df_transformed, self.user_defined_target)
+        model_proposal = await self.modeling_agent.proposed_model(user_instructions, varb_info_path,fea_eng_suggestions, df_transformed, user_defined_target)
         modeling_code = await self.modeling_agent.generate_modeling_code(model_proposal)
         Model, evaluation_result,training_history = await self.modeling_agent.execute_code(df_transformed,  modeling_code)
 
@@ -68,7 +68,7 @@ class ManagerAgent():
         self.report_agent.user_instructions = user_instructions
         self.report_agent.user_defined_target =user_defined_target
         optimization_suggestion = eval(evaluator_suggestion.replace("```", "").removeprefix("json"))['reasoning']
-        report = await self.report_agent.generate_report(self.user_instructions, fea_eng_result, model_proposal, evaluation_result, optimization_suggestion)
+        report = await self.report_agent.generate_report(user_instructions, fea_eng_result, model_proposal, evaluation_result, optimization_suggestion)
 
         return report
 
