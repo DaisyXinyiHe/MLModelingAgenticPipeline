@@ -164,7 +164,7 @@ class ModelingAgent:
         name = self.name,
         model = self.model,
         instructions = self.user_instructions,
-        model_settings = ModelSettings(temperature = 0)
+        model_settings = ModelSettings(temperature = 0.1)
         )
 
 
